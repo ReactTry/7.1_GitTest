@@ -7,12 +7,7 @@ const TodoList = () => {
   const [validation, setvalidation] = useState(false);
   const testRef = useRef();
 
-  //Add new todo onChange
-  const handleChange = (e) => {
-    setvalidation(false);
-    const { name, value } = e.target;
-    setNewItem(value);
-  };
+
 
   //Add new item to todo list
   const handlSubmitNewItem = (e) => {
