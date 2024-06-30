@@ -1,0 +1,207 @@
+import React, { useEffect, useRef, useState } from "react";
+import "./Todolist.css";
+const TodoList = () => {
+  const [newItem, setNewItem] = useState("");
+  const [existTodoList, setExistTodoList] = useState([]);
+  const [editTaskId, setEditTaskId] = useState("");
+  const [validation, setvalidation] = useState(false);
+  const testRef = useRef();
+
+
+
+  //Add new item to todo list
+  const handlSubmitNewItem = (e) => {
+    e.preventDefault();
+    setEditTaskId("");
+    let id = Math.random().toString(36).substring(2, 9);
+    if (newItem) {
+      const existTodo = JSON.parse(localStorage.getItem("myTodoList"));
+      let todoList = [];
+      if (existTodo) {
+        todoList = [...existTodo, { id: id, name: newItem, completed: false }];
+      } else {
+        todoList = [{ id: id, name: newItem, completed: false }];
+      }
+
+      localStorage.setItem("myTodoList", JSON.stringify(todoList));
+
+      setNewItem("");
+      setExistTodoList(todoList);
+    } else {
+      setvalidation(true);
+    }
+    testRef.current.focus();
+  };
+
+  //Delete Task from list
+  const deleteTask = (id) => {
+    const afterDelete = existTodoList.filter((item) => item.id != id);
+    setExistTodoList(afterDelete);
+    localStorage.setItem("myTodoList", JSON.stringify(afterDelete));
+  };
+
+  //Mark as task completed
+  const handleTaskCompleted = (id, completed) => {
+    const afterComplete = existTodoList.map((item) => {
+      if (item.id === id) {
+        return { ...item, completed: !completed };
+      }
+      return item;
+    });
+    setExistTodoList(afterComplete);
+    localStorage.setItem("myTodoList", JSON.stringify(afterComplete));
+    setEditTaskId("");
+  };
+
+  //onChange of Task edit in list
+  const handleEditChange = (e) => {
+    setEditTaskId({
+      ...editTaskId,
+      task: e.target.value,
+    });
+  };
+
+  //Submit edited task in list
+  const handleEditTaskSave = (e) => {
+    e.preventDefault();
+    const afterEditSave = existTodoList.map((item) => {
+      if (item.id === editTaskId.id) {
+        return { ...item, name: editTaskId.task };
+      }
+      return item;
+    });
+    setExistTodoList(afterEditSave);
+    localStorage.setItem("myTodoList", JSON.stringify(afterEditSave));
+    setEditTaskId("");
+  };
+
+  //Render onload
+  useEffect(() => {
+    setExistTodoList(JSON.parse(localStorage.getItem("myTodoList")));
+    return () => {};
+  }, []);
+
+  return (
+    <div className="group-1">
+      <div className="container-5">
+        <div className="container-11">
+          <div className="todo-list">Todo List</div>
+          <div className="container-2">
+            <div className="container-6">
+              <input
+                type="text"
+                className="new-todo"
+                name="newitem"
+                id="txtnewitem"
+                value={newItem}
+                ref={testRef}
+                onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handlSubmitNewItem(e);
+                }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="container-12"
+              onClick={handlSubmitNewItem}
+            >
+              Add Todo
+            </button>
+          </div>
+          <div className="validation">
+            {" "}
+            {validation && (
+              <label htmlFor="" style={{ color: "red" }}>
+                Required
+              </label>
+            )}{" "}
+          </div>
+          {existTodoList &&
+            existTodoList.map((item, index) => {
+              return (
+                <>
+                  {editTaskId.id === item.id ? (
+                    <div className="container-3">
+                      <input
+                        type="text"
+                        className="container-8"
+                        value={editTaskId.task}
+                        onChange={handleEditChange}
+                      />
+
+                      <button
+                        className="container-12"
+                        onClick={handleEditTaskSave}
+                      >
+                        Save
+                      </button>
+
+                      <button
+                        onClick={() => setEditTaskId("")}
+                        className="container-13"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="container">
+                      <div className="container-4">
+                        <h1
+                          onClick={() =>
+                            handleTaskCompleted(item.id, item.completed)
+                          }
+                          className="new-item"
+                        >
+                          {index + 1} - {item.name}
+                        </h1>
+                        <div className="container-9">
+                          {!item.completed ? (
+                            <img
+                              onClick={() =>
+                                setEditTaskId({
+                                  ...editTaskId,
+                                  id: item.id,
+                                  task: item.name,
+                                })
+                              }
+                              className="image-8"
+                              src="src\assets\images\image_8.png"
+                            />
+                          ) : (
+                            <img
+                              className="disabled"
+                              src="src\assets\images\NoEdit.png"
+                            />
+                          )}
+                          {!editTaskId ? (
+                            <img
+                              onClick={() => deleteTask(item.id)}
+                              className="image-10"
+                              src="src\assets\images\remove.svg"
+                            />
+                          ) : (
+                            <img
+                              className="disabled"
+                              src="src\assets\images\image_10.png"
+                            />
+                          )}
+                        </div>
+                      </div>{" "}
+                      {item.completed && <div className="line-5"></div>}
+                    </div>
+                  )}
+
+                  <div className="line-7"></div>
+                </>
+              );
+            })}       
+        </div>
+        <div className="line-16"></div>
+      </div>
+    </div>
+  );
+};
+
+export default TodoList;
