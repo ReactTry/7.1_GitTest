@@ -43,12 +43,7 @@ const TodoList = () => {
 
 
 
-  const handleEditChange = (e) => {
-    setEditTaskId({
-      ...editTaskId,
-      task: e.target.value,
-    });
-  };
+
 
   //Submit edited task in list
   const handleEditTaskSave = (e) => {
